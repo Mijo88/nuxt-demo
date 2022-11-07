@@ -5,13 +5,13 @@
         <input
           type="text"
           placeholder="Description"
-          :value="product.description"
+          :value="productInput.description"
           @input="onChangeDescription"
         >
         <input
           type="number"
           placeholder="Price"
-          :value="product.price"
+          :value="productInput.price"
           @input="onChangePrice"
         >
 
@@ -41,66 +41,64 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref, computed, onMounted } from '@nuxtjs/composition-api'
 import { useStore } from '@/services/StoreService'
+import { useActions } from '@/actions'
 
-export default {
-  name: 'TestComponent',
+type Product = {
+  description: string;
+  price: string | number;
+}
 
-  data () {
-    return {
-      product: {
-        description: '',
-        price: 0
-      },
-      products: []
-    }
-  },
+const { order: orderStore } = useStore()
+const actions = useActions()
 
-  computed: {
-    store () {
-      return useStore()
-    },
+const products = ref<Product[]>([])
+const productInput = ref<Product>({ description: '', price: 0 })
 
-    list () {
-      return this.store.order.state.list
-    }
-  },
+const list = computed(() => orderStore.state.list)
 
-  methods: {
-    onChangePrice (event) {
-      this.product.price = parseInt(event.target.value)
-    },
+function onChangePrice (event: Event) {
+  const price = (event.target as HTMLInputElement).value
+  productInput.value.price = parseInt(price)
+}
 
-    onChangeDescription (event) {
-      this.product.description = event.target.value
-    },
+function onChangeDescription (event: Event) {
+  const desc = (event.target as HTMLInputElement).value
+  productInput.value.description = desc
+}
 
-    addProduct () {
-      this.products.push({ ...this.product })
-      this.product = {}
-    },
+function addProduct () {
+  products.value.push({ ...productInput.value })
+  productInput.value.description = ''
+  productInput.value.price = 0
+}
 
-    commitOrder () {
-      const order = {
-        products: this.products.map(product => this.addIds(product))
-      }
+function commitOrder () {
+  const p = products.value.map(product => addIds(product))
+  const order = addIds({
+    products: p
+  })
 
-      this.store.order.mutations.listAppend(order)
-      this.products = []
-    },
+  orderStore.mutations.listAppend(order)
+  products.value = []
+}
 
-    addIds (input) {
-      const id = Math.floor(Math.random() * 10000)
-      return {
-        '@id': `/api/v1/${id}`,
-        uuid: id,
-        ...input
-      }
-    }
+function addIds (input: any) {
+  const id = Math.floor(Math.random() * 10000)
+  return {
+    '@id': `/api/v1/${id}`,
+    uuid: id,
+    ...input
   }
 }
 
+onMounted(() => {
+  actions.order.fetchList()
+  actions.ModuleA.fetchList(false)
+  actions.ModuleB.fetchList()
+})
 </script>
 
 <style>

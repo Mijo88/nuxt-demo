@@ -1,7 +1,16 @@
 import { defineNuxtPlugin } from '@nuxtjs/composition-api'
-import { initializeStore } from '@/logic/StoreService'
+import { initializeStore, getStorePaths, useStore } from '@/services/StoreService'
+import { setupActions } from '@/actions'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  // eslint-disable-next-line no-new
   initializeStore(nuxtApp.store)
+
+  const storePaths = getStorePaths()
+  const store = useStore()
+
+  setupActions({
+    store,
+    storePaths,
+    api: nuxtApp.$axios
+  })
 })

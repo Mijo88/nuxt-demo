@@ -16,6 +16,12 @@ const store = new class StoreService {
     return this._modules!
   }
 
+  public get paths (): string[] {
+    return Object.keys(this._store._modulesNamespaceMap).map(path => (
+      path.split('/').slice(0, -1).join('/')
+    ))
+  }
+
   private generateModules = () => {
     const modules = this.generateStates()
     const mutations = this.generateMutations()
@@ -37,10 +43,12 @@ const store = new class StoreService {
       }
     }
 
-    Object.entries(this._store._modulesNamespaceMap).forEach(([path, obj]) => {
-      const mod = path.split('/').filter(s => !!s).pop() as string
+    Object.keys(this._store._modulesNamespaceMap).forEach((path) => {
+      const namespaces = path.split('/').filter(s => !!s)
+      const mod = namespaces.pop() as string
+
       modules[mod] = {
-        state: (obj as any).state
+        state: namespaces.reduce((acc, namespace) => acc[namespace], this._store.state)[mod]
       }
     })
 
@@ -76,6 +84,8 @@ const store = new class StoreService {
   }
 }()
 
-export const useStore = (): StoreModules => store.modules
+export const useStore = () => store.modules
+
+export const getStorePaths = () => store.paths
 
 export const initializeStore = (nuxtStore: any) => store.init(nuxtStore)
