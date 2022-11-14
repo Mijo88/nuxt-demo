@@ -1,5 +1,9 @@
 import type { OrderModule } from './order'
 
+declare global {
+  interface NuxtStore {}
+}
+
 interface RootModule {
   state: {};
   getters: {};
