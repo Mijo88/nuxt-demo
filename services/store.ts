@@ -3,11 +3,11 @@
 import type { Context } from '@nuxt/types'
 import type { StoreModules } from '@/store'
 
-const store = new class StoreService {
+class Store {
   private _store: any = null
   private _modules: StoreModules | null = null
 
-  public init = (store: any) => {
+  public setup = (store: any) => {
     this._store = store
     this._modules = this.generateModules()
   }
@@ -82,10 +82,12 @@ const store = new class StoreService {
       return acc
     }, {} as any)
   }
-}()
+}
+
+export const store = new Store()
 
 export const useStore = () => store.modules
 
 export const getStorePaths = () => store.paths
 
-export const initializeStore = (nuxtStore: any) => store.init(nuxtStore)
+export const setupStore = (nuxtStore: any) => store.setup(nuxtStore)

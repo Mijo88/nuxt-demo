@@ -1,9 +1,9 @@
 import { defineNuxtPlugin } from '@nuxtjs/composition-api'
-import { initializeStore, getStorePaths, useStore } from '@/services/StoreService'
+import { setupStore, getStorePaths, useStore } from '@/services/store'
 import { setupActions } from '@/actions'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  initializeStore(nuxtApp.store)
+  setupStore(nuxtApp.store)
 
   const storePaths = getStorePaths()
   const store = useStore()
