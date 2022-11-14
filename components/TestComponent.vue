@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { useStore } from '@/services/StoreService'
+import { useStore } from '@/services/store'
 
 export default {
   name: 'TestComponent',

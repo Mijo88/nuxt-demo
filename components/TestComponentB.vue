@@ -43,13 +43,16 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from '@nuxtjs/composition-api'
-import { useStore } from '@/services/StoreService'
+import { useStore } from '@/services/store'
+import { useHttp } from '@/services/http'
 import { useActions } from '@/actions'
 
 type Product = {
   description: string;
   price: string | number;
 }
+
+const http = useHttp()
 
 const { order: orderStore } = useStore()
 const actions = useActions()
@@ -94,10 +97,16 @@ function addIds (input: any) {
   }
 }
 
+function fetchTest () {
+  http.get('https://jsonplaceholder.typicode.com/todos', { abortContext: { namespace: 'test', skipAbort: false } })
+  http.get('https://jsonplaceholder.typicode.com/todos', { abortContext: { namespace: 'test', skipAbort: false } })
+  http.get('https://jsonplaceholder.typicode.com/todos', { abortContext: { namespace: 'test', skipAbort: false } })
+  http.get('https://jsonplaceholder.typicode.com/todos', { abortContext: { namespace: 'test', skipAbort: false } })
+  // http.get('invalid', { abortContext: { namespace: 'test', skipAbort: false } })
+}
+
 onMounted(() => {
-  actions.order.fetchList()
-  actions.ModuleA.fetchList(false)
-  actions.ModuleB.fetchList()
+  fetchTest()
 })
 </script>
 
