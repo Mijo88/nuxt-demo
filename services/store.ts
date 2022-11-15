@@ -48,7 +48,7 @@ class Store {
     )
 
     const modules: {
-      [mod in ExtractModule<KeysOf<typeof namespaceMap>[number]>]?: unknown
+      [mod in typeof moduleNames[number]]?: unknown
     } = {}
 
     paths.forEach((path) => {
