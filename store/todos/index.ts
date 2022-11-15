@@ -7,20 +7,6 @@ export interface TodoState extends SharedModuleState<TG.TodoEntity> {
 
 type ModuleState = Omit<TodoState, ''>
 
-export const state = (): ModuleState => ({
-  list: []
-})
-
-export const mutations: MutationTree<ModuleState> = {
-  ...makeSharedActions<TG.TodoEntity>()
-}
-
-export const todo: Module<ModuleState, {}> = {
-  namespaced: true,
-  state,
-  mutations
-}
-
 export type TodoModuleActions = (
   StoreActionPath<SharedActions<TG.TodoEntity>, 'todos'>
 )
@@ -33,4 +19,18 @@ declare global {
       todos: TodoState
     }
   }
+}
+
+export const state = (): ModuleState => ({
+  list: []
+})
+
+export const mutations: MutationTree<ModuleState> = {
+  ...makeSharedActions<TG.TodoEntity>()
+}
+
+export const todo: Module<ModuleState, {}> = {
+  namespaced: true,
+  state,
+  mutations
 }

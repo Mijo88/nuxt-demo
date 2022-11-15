@@ -30,7 +30,7 @@
       "@nuxt/types",
       "@nuxtjs/axios",
       "@types/node",
-      "types"
+      "src/types"
     ]
   },
   "exclude": [

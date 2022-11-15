@@ -3,6 +3,8 @@
 import type { Context } from '@nuxt/types'
 // import type { StoreModules } from '@/store'
 
+type KeysOf<ObjType extends object> = (keyof ObjType)[]
+
 class Store {
   private _store: TG.Store | null = null
   private _modules: TG.Store | null = null
@@ -38,16 +40,20 @@ class Store {
   }
 
   private generateStates = () => {
-    const root = this.store._modules.root
-    const modules: any = {
-      root: {
-        state: root.state
-      }
-    }
+    const namespaceMap = this.store._modulesNamespaceMap
+    const paths = Object.keys(namespaceMap) as KeysOf<typeof namespaceMap>
 
-    Object.keys(this.store._modulesNamespaceMap).forEach((path) => {
-      const namespaces = path.split('/').filter(s => !!s)
-      const mod = namespaces.pop() as string
+    const moduleNames = paths.map(path => path.split('/').slice(-1, -1).pop()!) as (
+      ExtractModule<KeysOf<typeof namespaceMap>[number]>[]
+    )
+
+    const modules: {
+      [mod in ExtractModule<KeysOf<typeof namespaceMap>[number]>]?: unknown
+    } = {}
+
+    paths.forEach((path) => {
+      const namespaces = path.split('/').slice(0, -1) as Split<typeof path, '/'>
+      const mod = namespaces.pop()!
 
       modules[mod] = {
         state: namespaces.reduce((acc, namespace) => acc[namespace], this.store.state)[mod]

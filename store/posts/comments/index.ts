@@ -1,11 +1,14 @@
 import { Module, MutationTree } from 'vuex'
 import { makeSharedActions, SharedActions, SharedModuleState } from '@/store/actions'
-
 export interface CommentState extends SharedModuleState<TG.CommentEntity> {
   list: TG.CommentEntity[]
 }
 
 type ModuleState = Omit<CommentState, ''>
+
+export type CommentModuleActions = (
+  StoreActionPath<SharedActions<TG.CommentEntity>, 'comments'>
+)
 
 export const state = (): ModuleState => ({
   list: []
@@ -20,7 +23,3 @@ export const comment: Module<ModuleState, {}> = {
   state,
   mutations
 }
-
-export type CommentModuleActions = (
-  StoreActionPath<SharedActions<TG.CommentEntity>, 'comments'>
-)

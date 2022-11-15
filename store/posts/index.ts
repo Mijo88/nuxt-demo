@@ -9,20 +9,6 @@ export interface PostState extends SharedModuleState<TG.PostEntity> {
 
 type ModuleState = Omit<PostState, 'comments'>
 
-export const state = (): ModuleState => ({
-  list: []
-})
-
-export const mutations: MutationTree<ModuleState> = {
-  ...makeSharedActions<TG.PostEntity>()
-}
-
-export const todo: Module<ModuleState, {}> = {
-  namespaced: true,
-  state,
-  mutations
-}
-
 export type PostModuleActions = (
   StoreActionPath<SharedActions<TG.PostEntity>, 'posts'> &
   StoreActionPath<CommentModuleActions, 'posts'>
@@ -36,4 +22,18 @@ declare global {
       posts: PostState
     }
   }
+}
+
+export const state = (): ModuleState => ({
+  list: []
+})
+
+export const mutations: MutationTree<ModuleState> = {
+  ...makeSharedActions<TG.PostEntity>()
+}
+
+export const todo: Module<ModuleState, {}> = {
+  namespaced: true,
+  state,
+  mutations
 }
