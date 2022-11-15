@@ -1,16 +1,23 @@
-import type { OrderModule } from './order'
+export {}
+
+type ConvertActionKey<Action extends string, ModuleName extends string> = `${ModuleName}/${Action}`
 
 declare global {
-  interface NuxtStore {}
-}
+  type StringKeys<Obj> = Extract<keyof Obj, string>
 
-interface RootModule {
-  state: {};
-  getters: {};
-  mutations: {};
-}
+  type StoreActionPath<Obj, ModuleName extends string> = {
+    [Action in StringKeys<Obj> as ConvertActionKey<Action, ModuleName>]: Obj[Action]
+  }
+  namespace TG {
+    interface StoreActions {}
 
-export interface StoreModules {
-  root: RootModule;
-  order: OrderModule;
+    interface StoreState {}
+
+    interface Store {
+      _modulesNamespaceMap: { [path: string]: unknown }
+      _mutations: TG.StoreActions
+      state: TG.StoreState
+      commit (path: string, payload: unknown): void
+    }
+  }
 }

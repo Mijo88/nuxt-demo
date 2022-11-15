@@ -1,44 +1,5 @@
 <template>
-  <div class="row">
-    <div class="col">
-      <div class="form flex-col">
-        <input
-          type="text"
-          placeholder="Description"
-          :value="product.description"
-          @input="onChangeDescription"
-        >
-        <input
-          type="number"
-          placeholder="Price"
-          :value="product.price"
-          @input="onChangePrice"
-        >
-
-        <button @click="addProduct">
-          Add product
-        </button>
-        <button @click="commitOrder">
-          Commit order
-        </button>
-      </div>
-      <div
-        v-for="{ description, price } in products"
-        :key="`${price}-${description}`"
-        class="input-orders"
-      >
-        {{ `&euro;${price} - ${description}` }}
-      </div>
-    </div>
-
-    <div class="col">
-      <div v-for="order in list" :key="order.uuid" class="card">
-        <p v-for="{ description, price, uuid } in order.products" :key="uuid">
-          <span>{{ price }}</span><span>{{ description }}</span>
-        </p>
-      </div>
-    </div>
-  </div>
+  <div class="row" />
 </template>
 
 <script>

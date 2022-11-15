@@ -1,7 +1,5 @@
-import type StoreServiceClass from '@/logic/StoreService'
+export {}
 
 declare global {
-  namespace TG {
-    type StoreService = StoreServiceClass
-  }
+  namespace TG {}
 }
