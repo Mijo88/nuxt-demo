@@ -19,6 +19,19 @@ declare global {
     [Action in StringKeys<Obj> as ConvertActionKey<Action, ModuleName>]: Obj[Action]
   }
 
+  type GetLastOfDelimiter<S extends string, D extends string> =
+    S extends `${infer _X}${D}${infer Y}`
+    ? Y
+    : S
+
+  type ModuleStates<S extends Record<string, any>, O> = {
+    [P in StringKeys<O> as GetLastOfDelimiter<
+      Trim<Replace<P, '/', '.'>, '.'>, '.'
+    >]: DeepSearch<S, Trim<Replace<P, '/', '.'>, '.'>, '.'>
+  }
+
+  type Z = GetLastOfDelimiter<'posts.comments.', '.'>
+
   namespace TG {
     interface StoreActions {}
 
@@ -36,3 +49,17 @@ declare global {
     }
   }
 }
+
+const fakeState = {
+  todos: {
+    list: []
+  },
+  posts: {
+    list: [],
+    comments: {
+      list: []
+    }
+  }
+}
+
+const paths = ['todos', 'posts', 'posts.comments']

@@ -32,35 +32,48 @@ class Store {
     const modules = this.generateStates()
     const actions = this.generateActions()
 
-    Object.keys(modules).forEach((mod) => {
-      modules[mod].actions = actions[mod] || {}
-    })
+    // Object.keys(modules).forEach((mod) => {
+    //   modules[mod].actions = actions[mod] || {}
+    // })
 
     return modules
   }
 
+  private getType = <T>(value: T): string => (
+    Object.prototype.toString.call(value).slice(8, -1)
+  )
+
+  private getValueFromPath = <
+    O extends Record<string, any>,
+    P extends string,
+    D extends string = '.'
+  > (obj: O, path: P): DeepSearch<O, P, D> => {
+    const pathSections = path.split('.')
+
+    if (pathSections.length === 1) {
+      return obj[pathSections[0]]
+    }
+
+    const [key, ...rest] = pathSections
+
+    return this.getValueFromPath(obj[key as keyof typeof obj], rest.join('.'))
+  }
+
   private generateStates = () => {
     const namespaceMap = this.store._modulesNamespaceMap
-    const paths = Object.keys(namespaceMap) as KeysOf<typeof namespaceMap>
+    const paths = Object.keys(namespaceMap)
+      .map(key => key.slice(0, -1).replace(/\//g, '.')) as (
+        Trim<Replace<KeysOf<typeof namespaceMap>[number], '/', '.'>, '.'>
+      )[]
 
-    const moduleNames = paths.map(path => path.split('/').slice(-1, -1).pop()!) as (
-      ExtractModule<KeysOf<typeof namespaceMap>[number]>[]
-    )
+    const moduleStates = paths.reduce((acc, path) => {
+      const pathModules = path.split('.')
+      const moduleName = pathModules[pathModules.length - 1]
+      acc[moduleName as keyof typeof acc] = this.getValueFromPath(this.store.state, path)
+      return acc
+    }, {} as any) as ModuleStates<typeof this.store.state, typeof namespaceMap>
 
-    const modules: {
-      [mod in typeof moduleNames[number]]?: unknown
-    } = {}
-
-    paths.forEach((path) => {
-      const namespaces = path.split('/').slice(0, -1) as Split<typeof path, '/'>
-      const mod = namespaces.pop()!
-
-      modules[mod] = {
-        state: namespaces.reduce((acc, namespace) => acc[namespace], this.store.state)[mod]
-      }
-    })
-
-    return modules
+    return moduleStates
   }
 
   private generateActions = () => {

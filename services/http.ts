@@ -104,7 +104,7 @@ class Http {
       const errType = Object.prototype.toString.call(err).slice(8, -1).toLowerCase()
       if (errType.match('error')) {
       // eslint-disable-next-line no-console
-        console.error('[REQUEST]', err)
+        console.error('[REQUEST]', err.response)
       }
 
       return {

@@ -12,10 +12,10 @@ const http = useHttp()
 const store: any = useStore()
 
 function fetchTest () {
-  http.get('https://jsonplaceholder.typicode.com/todos', { abortContext: { namespace: 'test', skipAbort: false } })
-  http.get('https://jsonplaceholder.typicode.com/todos', { abortContext: { namespace: 'test', skipAbort: false } })
-  http.get('https://jsonplaceholder.typicode.com/todos', { abortContext: { namespace: 'test', skipAbort: false } })
-  http.get('https://jsonplaceholder.typicode.com/todos', { abortContext: { namespace: 'test', skipAbort: false } })
+  http.get('https//invalid')
+  http.get('https://jsonplaceholder.typicode.com/todos', { abortContext: { namespace: 'n1', skipAbort: false } })
+  http.get('https://jsonplaceholder.typicode.com/todos', { abortContext: { namespace: 'n2', skipAbort: false } })
+  http.get('https://jsonplaceholder.typicode.com/todos', { abortContext: { namespace: 'n2', skipAbort: false } })
 }
 
 onMounted(() => {
