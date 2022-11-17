@@ -7,7 +7,7 @@ export interface CommentState extends SharedModuleState<TG.CommentEntity> {
 type ModuleState = Omit<CommentState, ''>
 
 export type CommentModuleActions = (
-  StoreActionPath<SharedActions<TG.CommentEntity>, 'comments'>
+  Transform.StoreActionPath<SharedActions<TG.CommentEntity>, 'comments'>
 )
 
 export const state = (): ModuleState => ({

@@ -9,7 +9,10 @@ import { useHttp } from '@/services/http'
 
 const http = useHttp()
 
-const store: any = useStore()
+const store = useStore()
+
+// store.comments.state.list
+// store.posts.state.list
 
 function fetchTest () {
   http.get('https//invalid')

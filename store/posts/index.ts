@@ -10,8 +10,8 @@ export interface PostState extends SharedModuleState<TG.PostEntity> {
 type ModuleState = Omit<PostState, 'comments'>
 
 export type PostModuleActions = (
-  StoreActionPath<SharedActions<TG.PostEntity>, 'posts'> &
-  StoreActionPath<CommentModuleActions, 'posts'>
+  Transform.StoreActionPath<SharedActions<TG.PostEntity>, 'posts'> &
+  Transform.StoreActionPath<CommentModuleActions, 'posts'>
 )
 
 declare global {

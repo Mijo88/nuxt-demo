@@ -8,7 +8,7 @@ export interface TodoState extends SharedModuleState<TG.TodoEntity> {
 type ModuleState = Omit<TodoState, ''>
 
 export type TodoModuleActions = (
-  StoreActionPath<SharedActions<TG.TodoEntity>, 'todos'>
+  Transform.StoreActionPath<SharedActions<TG.TodoEntity>, 'todos'>
 )
 
 declare global {
