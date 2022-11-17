@@ -34,17 +34,3 @@ declare global {
     }
   }
 }
-
-const fakeState = {
-  todos: {
-    list: []
-  },
-  posts: {
-    list: [],
-    comments: {
-      list: []
-    }
-  }
-}
-
-const paths = ['todos', 'posts', 'posts.comments']

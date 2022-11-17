@@ -11,6 +11,8 @@ const http = useHttp()
 
 const store = useStore()
 
+store.comments.actions.setList(5)
+
 // store.comments.state.list
 // store.posts.state.list
 

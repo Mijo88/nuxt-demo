@@ -10,14 +10,16 @@ type ModuleActionTuple<S extends string> =
   ? [M, A]
   : never
 
-type FilteredActions<S extends string, M extends string> =
+type FilteredActionKey<S extends string, M extends string> =
   S extends `${M}/${ModuleActionTuple<S>[1]}`
   ? S
   : S extends `${infer _}/${M}/${infer R}`
-  ? FilteredActions<`${M}/${R}`, M> extends `${M}/${ModuleActionTuple<S>[1]}`
+  ? FilteredActionKey<`${M}/${R}`, M> extends `${M}/${ModuleActionTuple<S>[1]}`
     ? S
     : never
   : never
+
+type FilteredActionKeys<S extends string[], M extends string> = FilteredActionKey<S[number], M>[]
 
 type NamespaceKeys<S extends Record<string, any>> =
   Extract<keyof S['_modulesNamespaceMap'], string>
@@ -25,11 +27,15 @@ type NamespaceKeys<S extends Record<string, any>> =
 type ExtractModuleName<P extends string> =
   GetLastOfDelimiter<Transform.ResourceToPath<P>>
 
+type ModuleActions<S extends Record<string, any>, M extends string> = {
+  [A in FilteredActionKey<Cast<keyof S['_mutations'], string>, M> as ModuleActionTuple<A>[1]]: (
+    payload: Parameters<S['_mutations'][A]>[1]
+  ) => void
+}
+
 type StoreModule<S extends Record<string, any>, P extends string, M extends string> = {
   state: DeepExtract<S, P>
-  actions: {
-    [P in FilteredActions<Cast<keyof S['_mutations'], string>, M> as ModuleActionTuple<P>[1]]: () => void
-  }
+  actions: ModuleActions<S, M>
 }
 
 type StoreModules<
@@ -40,27 +46,28 @@ type StoreModules<
   >
 }
 
-class Store {
-  private _store: TG.Store | null = null
-  private _modules: ReturnType<typeof this.generateModules> | null = null
+type PartialStore = {
+  state: Partial<TG.Store['state']>
+  _mutations: Partial<TG.Store['_mutations']>
+  _modulesNamespaceMap: Partial<TG.Store['_modulesNamespaceMap']>
+  commit: TG.Store['commit']
+}
 
-  public setup = (store: TG.Store) => {
+export class Store<S extends PartialStore = TG.Store> {
+  private _store: S | null = null
+  private _modules: StoreModules<S> | null = null
+
+  public setup = (store: S) => {
     this._store = store
     this._modules = this.generateModules()
   }
 
-  private get store (): TG.Store {
+  private get store (): S {
     return this._store!
   }
 
-  public get modules (): ReturnType<typeof this.generateModules> {
+  public get modules (): StoreModules<S> {
     return this._modules!
-  }
-
-  public get paths (): string[] {
-    return Object.keys(this.store._modulesNamespaceMap).map(path => (
-      path.split('/').slice(0, -1).join('/')
-    ))
   }
 
   private getValueFromPath = <
@@ -82,8 +89,19 @@ class Store {
   private getModuleActions = <
     O extends Record<string, any>,
     M extends string
-  > (actions: O, moduleName: M) => {
+  > (actions: O, moduleName: M): ModuleActions<S, M> => {
+    const filteredActions = Object.keys(actions).filter(
+      action => action.split('/').slice(-2).pop() === moduleName
+    ) as FilteredActionKeys<Cast<keyof O, string[]>, M>
 
+    return filteredActions.reduce((acc, key) => {
+      const actionName = key.split('/').pop()!
+      acc[actionName] = (payload: Parameters<typeof actions[typeof key]>[1]): void => {
+        this.store.commit(key, payload)
+      }
+
+      return acc
+    }, {} as any) // @todo: replace any
   }
 
   private generateModules = () => {
@@ -96,14 +114,18 @@ class Store {
     const modules = paths.reduce((acc, path) => {
       const pathModules = path.split('.') as Split<typeof path, '.'>
       const moduleName = pathModules[pathModules.length - 1]
-      acc[moduleName] = {
-        state: this.getValueFromPath(this.store.state, path),
-        actions: {}
-      } as StoreModules<typeof this.store>[typeof moduleName] as any // @todo: update actions and remove as any
-      return acc
-    }, {} as Partial<StoreModules<typeof this.store>>)
 
-    return modules as StoreModules<typeof this.store>
+      const state = this.getValueFromPath(this.store.state, path)
+      const actions = this.getModuleActions(this.store._mutations, moduleName)
+      acc[moduleName] = {
+        state,
+        actions
+      } as never
+
+      return acc
+    }, {} as any) as StoreModules<S> // @todo: replace any
+
+    return modules as StoreModules<S>
   }
 }
 
